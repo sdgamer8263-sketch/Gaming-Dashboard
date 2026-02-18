@@ -3,186 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SKA HOSTING | Admin Dashboard</title>
+    <title>SKA HOSTING | Official Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Rajdhani:wght@500;700&display=swap');
         
         body { 
-            background: url('r152bcq4zhv51.gif') no-repeat center center fixed; 
-            background-size: cover; 
-            background-color: #000; 
-            color: white; 
-            font-family: 'Rajdhani', sans-serif; 
+            background: url('ccccccccccccccccccc.gif') no-repeat center center fixed; 
+            background-size: cover; background-color: #000; color: white; font-family: 'Rajdhani', sans-serif; 
         }
-        .glass-main { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(59, 130, 246, 0.2); }
-        .spec-box {
-            background: rgba(15, 23, 42, 0.9);
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
-            transition: 0.4s;
-        }
-        .spec-box:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
-            transform: translateY(-5px);
-        }
-        .glow-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
+        .glass-ui { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(59, 130, 246, 0.2); }
+        .spec-card { background: rgba(15, 23, 42, 0.9); border: 2px solid rgba(59, 130, 246, 0.3); transition: 0.3s; }
+        .spec-card:hover { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); transform: translateY(-5px); }
+        .glow-text { color: #3b82f6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
         .hidden { display: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <div id="setup-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 hidden">
-        <div class="glass-main p-8 rounded-[2rem] max-w-lg w-full border-t-4 border-blue-500">
-            <h2 class="text-2xl font-black text-blue-500 mb-6 font-['Orbitron']">SYSTEM INITIALIZATION</h2>
-            <div class="space-y-4 text-black">
-                <input type="text" id="set-upi" placeholder="UPI ID (GPay/PhonePe/Paytm)" class="w-full p-3 rounded-xl bg-white font-bold">
-                <input type="text" id="set-free-link" placeholder="Free Server Panel Link" class="w-full p-3 rounded-xl bg-white font-bold">
-                <input type="text" id="set-premium-link" placeholder="Premium Buy Link" class="w-full p-3 rounded-xl bg-white font-bold">
-                <input type="text" id="set-discord" placeholder="Discord Server Invite Link" class="w-full p-3 rounded-xl bg-white font-bold">
+    <div id="auth-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4">
+        <div class="glass-ui p-8 rounded-[2rem] max-w-md w-full text-center">
+            <img src="jkjkkjkjkjkjkjkjjk.png" class="w-20 mx-auto mb-4">
+            <h2 id="auth-status" class="text-2xl font-black mb-6 font-['Orbitron'] glow-text">SYSTEM ACCESS</h2>
+            <div class="space-y-4">
+                <input type="email" id="email" placeholder="Email" class="w-full p-3 rounded-xl bg-gray-800 border border-blue-500/30 outline-none text-white">
+                <input type="password" id="pass" placeholder="Password" class="w-full p-3 rounded-xl bg-gray-800 border border-blue-500/30 outline-none text-white">
+                <div class="flex gap-2">
+                    <button onclick="login()" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-500 transition">LOGIN</button>
+                    <button onclick="register()" class="flex-1 bg-gray-700 py-3 rounded-xl font-bold hover:bg-gray-600 transition">REGISTER</button>
+                </div>
             </div>
-            <button onclick="saveAdminConfig()" class="w-full bg-blue-600 mt-6 py-4 rounded-2xl font-black text-white hover:bg-blue-500 transition shadow-lg shadow-blue-500/50">ACTIVATE PANEL</button>
+            <p id="msg" class="text-xs mt-4 text-red-400"></p>
         </div>
     </div>
 
-    <div class="flex flex-col md:flex-row flex-1">
-        <aside class="w-full md:w-72 p-6 glass-main border-r border-blue-500/20 flex flex-col">
-            <div class="flex items-center gap-4 mb-12">
-                <img src="file_00000000387071faa7c92db633a8f726.png" class="w-12 h-12 object-contain">
-                <h1 class="text-2xl font-black tracking-tighter glow-blue font-['Orbitron']">SKA HOSTING</h1>
+    <div id="dashboard" class="flex flex-col md:flex-row flex-1 hidden">
+        <aside class="w-full md:w-72 p-6 glass-ui border-r border-blue-500/20">
+            <div class="flex items-center gap-4 mb-10">
+                <img src="jkjkkjkjkjkjkjkjjk.png" class="w-10 h-10">
+                <h1 class="text-xl font-black font-['Orbitron'] glow-text">SKA HOSTING</h1>
             </div>
-            <nav class="flex-1 space-y-4">
-                <button class="w-full text-left p-4 rounded-2xl bg-blue-600/20 border-l-4 border-blue-500 font-bold">🏠 DASHBOARD</button>
-                <button id="discord-nav" class="w-full text-left p-4 rounded-2xl hover:bg-gray-800 transition font-bold">💬 DISCORD COMMUNITY</button>
-                <button onclick="toggleAdmin()" class="w-full text-left p-4 rounded-2xl hover:bg-red-900/20 text-red-500 font-bold">⚙️ ADMIN SETTINGS</button>
+            <nav class="space-y-4">
+                <button class="w-full text-left p-4 rounded-xl bg-blue-600/20 border-l-4 border-blue-500 font-bold">🏠 DASHBOARD</button>
+                <a href="https://discord.gg/UqfbtuURca" target="_blank" class="block w-full text-left p-4 rounded-xl hover:bg-gray-800 transition font-bold">💬 DISCORD</a>
+                <button onclick="logout()" class="w-full text-left p-4 rounded-xl hover:bg-red-900/20 text-red-500 font-bold">🚪 LOGOUT</button>
             </nav>
         </aside>
 
         <main class="flex-1 p-6 md:p-12">
-            <div class="mb-12">
-                <h2 id="typing" class="text-3xl md:text-5xl font-black text-green-400 font-['Orbitron'] min-h-[60px]"></h2>
-            </div>
+            <h2 id="typing" class="text-3xl md:text-5xl font-black text-green-400 font-['Orbitron'] min-h-[60px] mb-12"></h2>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-                <div class="spec-box p-8 rounded-[2.5rem]">
-                    <h3 class="text-2xl font-black mb-4 italic">FREE NODE</h3>
-                    <p class="text-gray-400 mb-8">Deploy instantly on our high-performance community nodes.</p>
-                    <a id="free-btn" href="#" class="block text-center py-4 bg-blue-600 rounded-2xl font-black hover:bg-blue-500 transition">LAUNCH PANEL</a>
+                <div class="spec-card p-8 rounded-[2.5rem]">
+                    <h3 class="text-2xl font-black mb-2 italic">FREE MINECRAFT</h3>
+                    <p class="text-gray-400 mb-8">Deploy on community nodes. (Admin Approval Required)</p>
+                    <a href="https://dash.sgaming9107.qzz.io/" class="block text-center py-4 bg-blue-600 rounded-2xl font-black hover:bg-blue-500 transition">ACCESS PANEL</a>
                 </div>
 
-                <div class="spec-box p-8 rounded-[2.5rem] border-purple-500/50 bg-gradient-to-br from-purple-900/20 to-transparent">
+                <div class="spec-card p-8 rounded-[2.5rem] border-purple-500/50 bg-gradient-to-br from-purple-900/20 to-transparent">
                     <h3 class="text-2xl font-black mb-2 text-purple-400 italic">PREMIUM NODE 💎</h3>
                     <div class="bg-black/60 p-4 rounded-xl mb-6 border border-yellow-500/20">
-                        <p class="text-[10px] text-yellow-500 font-bold mb-1 tracking-widest uppercase">Payment UPI ID</p>
-                        <p id="upi-val" class="text-lg font-bold text-white tracking-widest italic">NOT CONFIGURED</p>
+                        <p class="text-[10px] text-yellow-500 font-bold mb-1 uppercase tracking-widest">Payment UPI (GPay/Paytm/PhonePe)</p>
+                        <p class="text-lg font-bold text-white tracking-widest">manasde648@okhdfcbank</p>
                     </div>
-                    <a id="premium-btn" href="#" class="block text-center py-4 bg-purple-600 rounded-2xl font-black hover:bg-purple-500 transition">BUY SUBSCRIPTION</a>
+                    <a href="https://skapanel.skahosting.qzz.io/" class="block text-center py-4 bg-purple-600 rounded-2xl font-black hover:bg-purple-500 transition">BUY NOW</a>
                 </div>
             </div>
         </main>
     </div>
 
-    <footer class="w-full bg-black/90 border-t-2 border-blue-500/50 p-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
-                <div class="spec-box p-6 rounded-3xl text-center">
-                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Processor Unit</p>
-                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">EPYC™ 7742</p>
-                    <p class="text-[10px] text-gray-500 mt-1">64-CORE HIGH CLOCK</p>
-                </div>
-
-                <div class="spec-box p-6 rounded-3xl text-center">
-                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Memory Allocation</p>
-                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">256GB RAM</p>
-                    <p class="text-[10px] text-gray-500 mt-1">DDR4 ECC REGISTRY</p>
-                </div>
-
-                <div class="spec-box p-6 rounded-3xl text-center">
-                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Storage Array</p>
-                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">NVME GEN4</p>
-                    <p class="text-[10px] text-gray-500 mt-1">RAID 10 PROTECTION</p>
-                </div>
-
-                <div class="spec-box p-6 rounded-3xl text-center">
-                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Network Uplink</p>
-                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">10GBPS</p>
-                    <p class="text-[10px] text-gray-500 mt-1">DDOS PROTECTED</p>
-                </div>
-
+    <footer class="w-full bg-black/95 border-t-2 border-blue-500/50 p-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="spec-card p-6 rounded-3xl text-center">
+                <p class="text-blue-500 font-black text-xs uppercase mb-2">Processor</p>
+                <p class="text-2xl font-black font-['Orbitron'] glow-blue">EPYC™ 7742</p>
             </div>
-
-            <div class="mt-10 flex flex-col md:flex-row justify-between items-center opacity-70 gap-4">
-                <div class="flex items-center gap-3">
-                    <img src="jkjkkjkjkjkjkjkjjk.png" class="w-8 h-8">
-                    <p class="text-xs font-bold tracking-[5px]">SKA HOSTING NETWORK &copy; 2026</p>
-                </div>
-                <div class="flex gap-4">
-                    <img src="https://img.icons8.com/color/48/google-logo.png" class="w-6 h-6 grayscale hover:grayscale-0 transition cursor-pointer">
-                    <img src="https://img.icons8.com/color/48/phone-pe.png" class="w-6 h-6 grayscale hover:grayscale-0 transition cursor-pointer">
-                    <img src="https://img.icons8.com/color/48/paytm.png" class="w-6 h-6 grayscale hover:grayscale-0 transition cursor-pointer">
-                </div>
+            <div class="spec-card p-6 rounded-3xl text-center">
+                <p class="text-blue-500 font-black text-xs uppercase mb-2">Memory</p>
+                <p class="text-2xl font-black font-['Orbitron'] glow-blue">256GB RAM</p>
+            </div>
+            <div class="spec-card p-6 rounded-3xl text-center">
+                <p class="text-blue-500 font-black text-xs uppercase mb-2">Storage</p>
+                <p class="text-2xl font-black font-['Orbitron'] glow-blue">NVME GEN4</p>
+            </div>
+            <div class="spec-card p-6 rounded-3xl text-center">
+                <p class="text-blue-500 font-black text-xs uppercase mb-2">Network</p>
+                <p class="text-2xl font-black font-['Orbitron'] glow-blue">10GBPS</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // --- FIREBASE CONFIG ---
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAGVfIAcVsMh6YcXSqmu_PIkGgjCtwGNYc",
             authDomain: "ska-hosting-buddy-ai.firebaseapp.com",
             projectId: "ska-hosting-buddy-ai",
             storageBucket: "ska-hosting-buddy-ai.firebasestorage.app",
             messagingSenderId: "122658609461",
-            appId: "1:122658609461:web:746da8ac58d37c12fed47c",
-            measurementId: "G-DXPYQLX3KH"
+            appId: "1:122658609461:web:746da8ac58d37c12fed47c"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        // --- CORE LOGIC ---
-        let currentConfig = null;
+        // AUTH FUNCTIONS
+        function login() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('pass').value;
+            auth.signInWithEmailAndPassword(e, p)
+                .then(() => showDashboard())
+                .catch(err => document.getElementById('msg').innerText = err.message);
+        }
 
-        async function initPanel() {
-            const doc = await db.collection("config").doc("main").get();
-            if(!doc.exists()) {
-                document.getElementById('setup-modal').classList.remove('hidden');
-            } else {
-                currentConfig = doc.data();
-                updateUI();
-            }
+        function register() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('pass').value;
+            auth.createUserWithEmailAndPassword(e, p)
+                .then(() => showDashboard())
+                .catch(err => document.getElementById('msg').innerText = err.message);
+        }
+
+        function logout() {
+            auth.signOut().then(() => location.reload());
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
             startTyping();
         }
 
-        async function saveAdminConfig() {
-            const newConfig = {
-                upi: document.getElementById('set-upi').value,
-                freeLink: document.getElementById('set-free-link').value,
-                premiumLink: document.getElementById('set-premium-link').value,
-                discord: document.getElementById('set-discord').value
-            };
-            await db.collection("config").doc("main").set(newConfig);
-            location.reload();
-        }
-
-        function updateUI() {
-            document.getElementById('upi-val').innerText = currentConfig.upi;
-            document.getElementById('free-btn').href = currentConfig.freeLink;
-            document.getElementById('premium-btn').href = currentConfig.premiumLink;
-            document.getElementById('discord-nav').onclick = () => window.open(currentConfig.discord);
-        }
-
-        function toggleAdmin() {
-            document.getElementById('setup-modal').classList.toggle('hidden');
-        }
+        // Check if user is already logged in
+        auth.onAuthStateChanged(user => {
+            if (user) showDashboard();
+        });
 
         // Typing Effect
-        const msg = "Welcome to SKA HOSTING - Next Gen Gaming Infrastructure.";
+        const msg = "Welcome to SKA HOSTING - Next Gen Gaming Nodes.";
         let i = 0;
         function startTyping() {
             if (i < msg.length) {
@@ -191,8 +152,6 @@
                 setTimeout(startTyping, 100);
             }
         }
-
-        window.onload = initPanel;
     </script>
 </body>
 </html>
