@@ -3,199 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SKA HOSTING | Pro Gaming Panel</title>
+    <title>SKA HOSTING | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Rajdhani:wght@500;700&display=swap');
+        
         body { 
-            background: url('r152bcq4zhv51.gif') no-repeat center center fixed; 
+            background: url('ccccccccccccccccccc.gif') no-repeat center center fixed; 
             background-size: cover; 
             background-color: #000; 
             color: white; 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Rajdhani', sans-serif; 
         }
-        .glass { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(59, 130, 246, 0.2); }
-        .gaming-btn { transition: all 0.3s ease; border: 1px solid transparent; }
-        .gaming-btn:hover { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); transform: scale(1.02); }
-        @keyframes pulse-border { 50% { border-color: rgba(59, 130, 246, 1); } }
-        .active-glow { animation: pulse-border 2s infinite; }
+        .glass-main { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(59, 130, 246, 0.2); }
+        .spec-box {
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+            transition: 0.4s;
+        }
+        .spec-box:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
+            transform: translateY(-5px);
+        }
+        .glow-blue { color: #3b82f6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.8); }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
 
-    <div id="admin-settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 hidden">
-        <div class="glass p-8 rounded-3xl max-w-lg w-full border-t-4 border-blue-500">
-            <h2 class="text-2xl font-black text-blue-400 mb-6 flex justify-between items-center">
-                ⚙️ ADMIN CONTROL CENTER
-                <button onclick="toggleSettings()" class="text-gray-500 hover:text-white text-sm">Close</button>
-            </h2>
-            <div class="space-y-4 text-black font-bold">
-                <div>
-                    <label class="text-white text-xs mb-1 block">PTERODACTYL KEY</label>
-                    <input type="password" id="set-ptero-key" class="w-full p-2 rounded bg-gray-200" placeholder="ptlc_...">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-white text-xs mb-1 block">FREE LINK</label>
-                        <input type="text" id="set-free-link" class="w-full p-2 rounded bg-gray-200">
-                    </div>
-                    <div>
-                        <label class="text-white text-xs mb-1 block">PREMIUM LINK</label>
-                        <input type="text" id="set-premium-link" class="w-full p-2 rounded bg-gray-200">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-white text-xs mb-1 block">UPI ID (FOR PAYMENTS)</label>
-                    <input type="text" id="set-upi" class="w-full p-2 rounded bg-gray-200">
-                </div>
+    <div id="setup-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 hidden">
+        <div class="glass-main p-8 rounded-[2rem] max-w-lg w-full border-t-4 border-blue-500">
+            <h2 class="text-2xl font-black text-blue-500 mb-6 font-['Orbitron']">SYSTEM INITIALIZATION</h2>
+            <div class="space-y-4 text-black">
+                <input type="text" id="set-upi" placeholder="UPI ID (GPay/PhonePe/Paytm)" class="w-full p-3 rounded-xl bg-white font-bold">
+                <input type="text" id="set-free-link" placeholder="Free Server Panel Link" class="w-full p-3 rounded-xl bg-white font-bold">
+                <input type="text" id="set-premium-link" placeholder="Premium Buy Link" class="w-full p-3 rounded-xl bg-white font-bold">
+                <input type="text" id="set-discord" placeholder="Discord Server Invite Link" class="w-full p-3 rounded-xl bg-white font-bold">
             </div>
-            <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-500 text-white mt-6 py-3 rounded-xl font-black transition">SAVE ALL CHANGES</button>
+            <button onclick="saveAdminConfig()" class="w-full bg-blue-600 mt-6 py-4 rounded-2xl font-black text-white hover:bg-blue-500 transition shadow-lg shadow-blue-500/50">ACTIVATE PANEL</button>
         </div>
     </div>
 
-    <div class="flex flex-col md:flex-row min-h-screen">
-        
-        <aside class="w-full md:w-72 p-6 bg-black/90 border-r border-blue-500/20 flex flex-col">
-            <div class="flex items-center gap-3 mb-12">
-                <img src="file_00000000387071faa7c92db633a8f726.png" alt="Logo" class="w-10 h-10 object-contain">
-                <h1 class="text-2xl font-black text-blue-500 italic tracking-tighter">SKA HOSTING</h1>
+    <div class="flex flex-col md:flex-row flex-1">
+        <aside class="w-full md:w-72 p-6 glass-main border-r border-blue-500/20 flex flex-col">
+            <div class="flex items-center gap-4 mb-12">
+                <img src="jkjkkjkjkjkjkjkjjk.png" class="w-12 h-12 object-contain">
+                <h1 class="text-2xl font-black tracking-tighter glow-blue font-['Orbitron']">SKA HOSTING</h1>
             </div>
-
             <nav class="flex-1 space-y-4">
-                <button onclick="showTab('dashboard')" class="w-full text-left p-4 rounded-xl gaming-btn bg-blue-600/10 active-glow">🏠 Dashboard</button>
-                <button onclick="showTab('status')" class="w-full text-left p-4 rounded-xl gaming-btn hover:bg-gray-800">📊 Status & Ping</button>
-                <button id="admin-only-btn" onclick="toggleSettings()" class="w-full text-left p-4 rounded-xl gaming-btn border-red-900/50 hover:bg-red-900/20 text-red-400 hidden">⚙️ Admin Settings</button>
+                <button class="w-full text-left p-4 rounded-2xl bg-blue-600/20 border-l-4 border-blue-500 font-bold">🏠 DASHBOARD</button>
+                <button id="discord-nav" class="w-full text-left p-4 rounded-2xl hover:bg-gray-800 transition font-bold">💬 DISCORD COMMUNITY</button>
+                <button onclick="toggleAdmin()" class="w-full text-left p-4 rounded-2xl hover:bg-red-900/20 text-red-500 font-bold">⚙️ ADMIN SETTINGS</button>
             </nav>
-
-            <div class="mt-auto p-4 glass rounded-2xl">
-                <p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Support Environment</p>
-                <div class="flex gap-2">
-                    <span class="px-2 py-1 bg-green-900/30 text-green-500 text-[10px] rounded border border-green-500/20">LIVE CHAT</span>
-                    <span class="px-2 py-1 bg-blue-900/30 text-blue-500 text-[10px] rounded border border-blue-500/20">AI HELP</span>
-                </div>
-            </div>
         </aside>
 
-        <main class="flex-1 p-6 md:p-12 overflow-y-auto">
-            <div class="mb-10">
-                <h2 id="typing" class="text-3xl md:text-5xl font-black text-green-400 tracking-tighter min-h-[60px]"></h2>
-                <p class="text-gray-500 text-sm mt-2">Server environment powered by AMD EPYC™ 7742 High Clock Nodes</p>
+        <main class="flex-1 p-6 md:p-12">
+            <div class="mb-12">
+                <h2 id="typing" class="text-3xl md:text-5xl font-black text-green-400 font-['Orbitron'] min-h-[60px]"></h2>
             </div>
 
-            <div id="tab-dashboard" class="space-y-8">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass p-8 rounded-[2rem] border-l-4 border-blue-500 relative overflow-hidden group">
-                        <h3 class="text-2xl font-black mb-2 italic">FREE MINECRAFT</h3>
-                        <p class="text-gray-400 text-sm mb-6">Experience zero-lag hosting on our shared community nodes.</p>
-                        <a id="btn-free" href="#" class="block text-center py-4 bg-blue-600 rounded-2xl font-black hover:bg-blue-500 shadow-lg shadow-blue-900/40">ACCESS PANEL</a>
-                    </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <div class="spec-box p-8 rounded-[2.5rem]">
+                    <h3 class="text-2xl font-black mb-4 italic">FREE NODE</h3>
+                    <p class="text-gray-400 mb-8">Deploy instantly on our high-performance community nodes.</p>
+                    <a id="free-btn" href="#" class="block text-center py-4 bg-blue-600 rounded-2xl font-black hover:bg-blue-500 transition">LAUNCH PANEL</a>
+                </div>
 
-                    <div class="glass p-8 rounded-[2rem] border-l-4 border-purple-500 bg-gradient-to-br from-purple-900/20 to-transparent">
-                        <h3 class="text-2xl font-black mb-2 text-purple-400 italic">PREMIUM NODE 💎</h3>
-                        <div class="bg-black/50 p-4 rounded-xl mb-6 border border-yellow-500/20">
-                            <p class="text-[10px] text-yellow-500 font-bold mb-1 tracking-widest">PAYMENT UPI ID</p>
-                            <p id="display-upi" class="text-xs font-mono text-white italic">Setting pending...</p>
-                        </div>
-                        <a id="btn-premium" href="#" class="block text-center py-4 bg-purple-600 rounded-2xl font-black hover:bg-purple-500 shadow-lg shadow-purple-900/40">BUY PREMIUM</a>
+                <div class="spec-box p-8 rounded-[2.5rem] border-purple-500/50 bg-gradient-to-br from-purple-900/20 to-transparent">
+                    <h3 class="text-2xl font-black mb-2 text-purple-400 italic">PREMIUM NODE 💎</h3>
+                    <div class="bg-black/60 p-4 rounded-xl mb-6 border border-yellow-500/20">
+                        <p class="text-[10px] text-yellow-500 font-bold mb-1 tracking-widest uppercase">Payment UPI ID</p>
+                        <p id="upi-val" class="text-lg font-bold text-white tracking-widest italic">NOT CONFIGURED</p>
                     </div>
+                    <a id="premium-btn" href="#" class="block text-center py-4 bg-purple-600 rounded-2xl font-black hover:bg-purple-500 transition">BUY SUBSCRIPTION</a>
                 </div>
             </div>
-
-            <div id="tab-status" class="hidden glass p-8 rounded-[2rem]">
-                <h3 class="text-2xl font-black mb-6">NETWORK STATUS</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-bold">
-                    <div class="p-4 bg-green-500/10 rounded-xl border border-green-500/30 flex justify-between items-center">
-                        <span>Node 01 (India)</span>
-                        <span class="text-green-500 animate-pulse">● ONLINE</span>
-                    </div>
-                    <div class="p-4 bg-blue-500/10 rounded-xl border border-blue-500/30 flex justify-between items-center">
-                        <span>Paper Latest Build</span>
-                        <span id="paper-ver" class="text-blue-400">Fetching...</span>
-                    </div>
-                </div>
-            </div>
-
-            <footer class="mt-20 border-t border-gray-800 pt-10 text-center grid grid-cols-2 md:grid-cols-4 gap-4 opacity-40 text-[10px] font-black tracking-widest">
-                <div>DDoS Protected</div>
-                <div>NVMe SSD RAID 10</div>
-                <div>99.9% Uptime</div>
-                <div>24/7 Support</div>
-            </footer>
         </main>
     </div>
 
+    <footer class="w-full bg-black/90 border-t-2 border-blue-500/50 p-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div class="spec-box p-6 rounded-3xl text-center">
+                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Processor Unit</p>
+                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">EPYC™ 7742</p>
+                    <p class="text-[10px] text-gray-500 mt-1">64-CORE HIGH CLOCK</p>
+                </div>
+
+                <div class="spec-box p-6 rounded-3xl text-center">
+                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Memory Allocation</p>
+                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">256GB RAM</p>
+                    <p class="text-[10px] text-gray-500 mt-1">DDR4 ECC REGISTRY</p>
+                </div>
+
+                <div class="spec-box p-6 rounded-3xl text-center">
+                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Storage Array</p>
+                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">NVME GEN4</p>
+                    <p class="text-[10px] text-gray-500 mt-1">RAID 10 PROTECTION</p>
+                </div>
+
+                <div class="spec-box p-6 rounded-3xl text-center">
+                    <p class="text-blue-500 font-black text-xs uppercase tracking-widest mb-2">Network Uplink</p>
+                    <p class="text-2xl font-black font-['Orbitron'] glow-blue">10GBPS</p>
+                    <p class="text-[10px] text-gray-500 mt-1">DDOS PROTECTED</p>
+                </div>
+
+            </div>
+
+            <div class="mt-10 flex flex-col md:flex-row justify-between items-center opacity-70 gap-4">
+                <div class="flex items-center gap-3">
+                    <img src="jkjkkjkjkjkjkjkjjk.png" class="w-8 h-8">
+                    <p class="text-xs font-bold tracking-[5px]">SKA HOSTING NETWORK &copy; 2026</p>
+                </div>
+                <div class="flex gap-4">
+                    <img src="https://img.icons8.com/color/48/google-logo.png" class="w-6 h-6 grayscale hover:grayscale-0 transition cursor-pointer">
+                    <img src="https://img.icons8.com/color/48/phone-pe.png" class="w-6 h-6 grayscale hover:grayscale-0 transition cursor-pointer">
+                    <img src="https://img.icons8.com/color/48/paytm.png" class="w-6 h-6 grayscale hover:grayscale-0 transition cursor-pointer">
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // --- 1. Admin & Data Logic ---
-        let skaConfig = JSON.parse(localStorage.getItem('skaConfig')) || {
-            pteroKey: "", freeLink: "#", premiumLink: "#", upi: "Not Set"
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGVfIAcVsMh6YcXSqmu_PIkGgjCtwGNYc",
+            authDomain: "ska-hosting-buddy-ai.firebaseapp.com",
+            projectId: "ska-hosting-buddy-ai",
+            storageBucket: "ska-hosting-buddy-ai.firebasestorage.app",
+            messagingSenderId: "122658609461",
+            appId: "1:122658609461:web:746da8ac58d37c12fed47c",
+            measurementId: "G-DXPYQLX3KH"
         };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // If first user, show admin settings automatically
-        window.onload = () => {
-            if(!skaConfig.pteroKey) {
-                toggleSettings();
+        // --- CORE LOGIC ---
+        let currentConfig = null;
+
+        async function initPanel() {
+            const doc = await db.collection("config").doc("main").get();
+            if(!doc.exists()) {
+                document.getElementById('setup-modal').classList.remove('hidden');
+            } else {
+                currentConfig = doc.data();
+                updateUI();
             }
-            updateFrontend();
             startTyping();
-            fetchPaper();
-            // In real app, check firebase auth role here
-            document.getElementById('admin-only-btn').classList.remove('hidden');
-        };
-
-        function updateFrontend() {
-            document.getElementById('display-upi').innerText = skaConfig.upi;
-            document.getElementById('btn-free').href = skaConfig.freeLink;
-            document.getElementById('btn-premium').href = skaConfig.premiumLink;
         }
 
-        function toggleSettings() {
-            const modal = document.getElementById('admin-settings-modal');
-            modal.classList.toggle('hidden');
-            // Load current values into inputs
-            document.getElementById('set-ptero-key').value = skaConfig.pteroKey;
-            document.getElementById('set-free-link').value = skaConfig.freeLink;
-            document.getElementById('set-premium-link').value = skaConfig.premiumLink;
-            document.getElementById('set-upi').value = skaConfig.upi;
-        }
-
-        function saveSettings() {
-            skaConfig = {
-                pteroKey: document.getElementById('set-ptero-key').value,
+        async function saveAdminConfig() {
+            const newConfig = {
+                upi: document.getElementById('set-upi').value,
                 freeLink: document.getElementById('set-free-link').value,
                 premiumLink: document.getElementById('set-premium-link').value,
-                upi: document.getElementById('set-upi').value
+                discord: document.getElementById('set-discord').value
             };
-            localStorage.setItem('skaConfig', JSON.stringify(skaConfig));
-            updateFrontend();
-            toggleSettings();
-            alert("Settings Updated Successfully!");
+            await db.collection("config").doc("main").set(newConfig);
+            location.reload();
         }
 
-        // --- 2. UI Logic (Typing/Tabs) ---
-        const welcomeMsg = "Welcome to SKA HOSTING - The Ultimate Gaming Environment!";
+        function updateUI() {
+            document.getElementById('upi-val').innerText = currentConfig.upi;
+            document.getElementById('free-btn').href = currentConfig.freeLink;
+            document.getElementById('premium-btn').href = currentConfig.premiumLink;
+            document.getElementById('discord-nav').onclick = () => window.open(currentConfig.discord);
+        }
+
+        function toggleAdmin() {
+            document.getElementById('setup-modal').classList.toggle('hidden');
+        }
+
+        // Typing Effect
+        const msg = "Welcome to SKA HOSTING - Next Gen Gaming Infrastructure.";
         let i = 0;
         function startTyping() {
-            if (i < welcomeMsg.length) {
-                document.getElementById("typing").innerHTML += welcomeMsg.charAt(i);
+            if (i < msg.length) {
+                document.getElementById("typing").innerHTML += msg.charAt(i);
                 i++;
                 setTimeout(startTyping, 100);
-            } else {
-                setTimeout(() => { document.getElementById("typing").innerHTML = ""; i = 0; startTyping(); }, 120000);
             }
         }
 
-        function showTab(tab) {
-            document.getElementById('tab-dashboard').classList.add('hidden');
-            document.getElementById('tab-status').classList.add('hidden');
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-        }
-
-        async function fetchPaper() {
-            try {
-                const res = await fetch('https://api.papermc.io/v2/projects/paper');
-                const data = await res.json();
-                document.getElementById('paper-ver').innerText = data.versions[data.versions.length - 1];
-            } catch { document.getElementById('paper-ver').innerText = "API Error"; }
-        }
+        window.onload = initPanel;
     </script>
 </body>
 </html>
